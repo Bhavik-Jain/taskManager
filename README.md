@@ -1,5 +1,3 @@
-# taskManager
-
 # Instructions to run the project
 1. Take the clone of this Repository
 2. Create a virtual environment outside the project using the below command
