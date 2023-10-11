@@ -3,56 +3,92 @@ from .serializers import TasksSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
-from .models import Task
+from .models import TasksStore
+from .configuration import constants
 
+# API: view_tasks
+# Description: This API will return all the tasks added by user
 @api_view(['GET'])
-def apiOverview(request):
-	api_urls = {
-		'List':'/task-list/',
-		'Detail View':'/task-detail/<str:pk>/',
-		'Create':'/task-create/',
-		'Update':'/task-update/<str:pk>/',
-		'Delete':'/task-delete/<str:pk>/',
-		}
+def view_tasks(request):
+    try:
+        tasks = TasksStore.objects.all().order_by('-id')
+        serializer = TasksSerializer(tasks, many=True)
+        result = {
+            constants.STATUS_CODE: constants.HTTP_200_CODE,
+            constants.MESSAGE: constants.DATA_RETRIVED_SUCCESS,
+            constants.DATA: serializer.data
+        }
+        return JsonResponse(result, safe=True)
+    except Exception as error:
+        print("error", error)
+        result = {
+                constants.STATUS_CODE: constants.HTTP_500_CODE,
+                constants.MESSAGE: constants.SOMETHING_WENT_WRONG,
+            }
+        return JsonResponse(result, safe=True)
 
-	return Response(api_urls)
-
-@api_view(['GET'])
-def taskList(request):
-	tasks = Task.objects.all().order_by('-id')
-	serializer = TasksSerializer(tasks, many=True)
-	return Response(serializer.data)
-
-@api_view(['GET'])
-def taskDetail(request, pk):
-	tasks = Task.objects.get(id=pk)
-	serializer = TasksSerializer(tasks, many=False)
-	return Response(serializer.data)
-
-
+# API: create_task
+# Description: This API will is used to create a new task
 @api_view(['POST'])
-def taskCreate(request):
-	serializer = TasksSerializer(data=request.data)
+def create_task(request):
+    try:
+        serializer = TasksSerializer(data=request.data)
 
-	if serializer.is_valid():
-		serializer.save()
+        if serializer.is_valid():
+            serializer.save()
+            result = {
+                constants.STATUS_CODE: constants.HTTP_200_CODE,
+                constants.MESSAGE: constants.CREATE_SUCCESS_MESSAGE,
+            }
+        return JsonResponse(result, safe=True)
+    except Exception as error:
+        print("error", error)
+        result = {
+                constants.STATUS_CODE: constants.HTTP_500_CODE,
+                constants.MESSAGE: constants.SOMETHING_WENT_WRONG,
+            }
+        return JsonResponse(result, safe=True)
 
-	return Response(serializer.data)
-
+# API: update_tasks
+# Description: This API is used to update an existing task 
 @api_view(['POST'])
-def taskUpdate(request, pk):
-	task = Task.objects.get(id=pk)
-	serializer = TasksSerializer(instance=task, data=request.data)
+def update_task(request, id):
+    try:
+        task = TasksStore.objects.get(id=id)
+        serializer = TasksSerializer(instance=task, data=request.data)
 
-	if serializer.is_valid():
-		serializer.save()
+        if serializer.is_valid():
+            serializer.save()
+            result = {
+                constants.STATUS_CODE: constants.HTTP_200_CODE,
+                constants.MESSAGE: constants.UPDATE_SUCCESS_MESSAGE,
+            }
+        return JsonResponse(result, safe=True)
+    except Exception as error:
+        print("error", error)
+        result = {
+                constants.STATUS_CODE: constants.HTTP_500_CODE,
+                constants.MESSAGE: constants.SOMETHING_WENT_WRONG,
+            }
+        return JsonResponse(result, safe=True)
 
-	return Response(serializer.data)
 
-
+# API: delete_tasks
+# Description: This API is used to  delete a particular task
 @api_view(['DELETE'])
-def taskDelete(request, pk):
-	task = Task.objects.get(id=pk)
-	task.delete()
-
-	return Response('Item succsesfully delete!')
+def delete_task(id):
+    try:
+        task = TasksStore.objects.get(id=id)
+        task.delete()
+        result = {
+            constants.STATUS_CODE: constants.HTTP_200_CODE,
+            constants.MESSAGE: constants.DELETED_SUCCESS_MESSAGE
+        }
+        return JsonResponse(result, safe=True)
+    except Exception as error:
+        print("error", error)
+        result = {
+                constants.STATUS_CODE: constants.HTTP_500_CODE,
+                constants.MESSAGE: constants.SOMETHING_WENT_WRONG,
+        }
+        return JsonResponse(result, safe=True)

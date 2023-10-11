@@ -3,11 +3,8 @@ from django.urls import path
 
 
 urlpatterns = [
-	path('', views.apiOverview, name="api-overview"),
-	path('task-list/', views.taskList, name="task-list"),
-	path('task-detail/<str:pk>/', views.taskDetail, name="task-detail"),
-	path('task-create/', views.taskCreate, name="task-create"),
-
-	path('task-update/<str:pk>/', views.taskUpdate, name="task-update"),
-	path('task-delete/<str:pk>/', views.taskDelete, name="task-delete"),
+	path('view_tasks/', views.view_tasks, name="view_tasks"),
+	path('create_task/', views.create_task, name="create_task"),
+	path('update_task/<str:id>/', views.update_task, name="update_task"),
+	path('delete_task/<str:id>/', views.delete_task, name="delete_task"),
 ]
